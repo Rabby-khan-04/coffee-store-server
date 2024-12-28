@@ -11,4 +11,9 @@ app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 app.use(express.static("public"));
 app.use(cookieParser());
 
+// Router Import
+import coffeeRouter from "./routes/coffee.routes.js";
+
+app.use("/api/v1/coffee", coffeeRouter);
+
 export default app;
