@@ -86,4 +86,65 @@ const getACoffee = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, coffee, "Coffee Fetched Successfully!!!"));
 });
 
-export const CoffeeController = { addCoffee, getAllCoffee, getACoffee };
+const updateCoffeeDetails = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const coffeeDetails = req.body;
+  const filter = { _id: new ObjectId(id) };
+  const updateDoc = {
+    $set: {
+      name: coffeeDetails.name,
+      chef: coffeeDetails.chef,
+      supplier: coffeeDetails.supplier,
+      taste: coffeeDetails.taste,
+      category: coffeeDetails.category,
+      details: coffeeDetails.details,
+      price: coffeeDetails.price,
+    },
+  };
+
+  const option = { upsert: true };
+
+  const result = await Coffee.updateOne(filter, updateDoc, option);
+  if (result.modifiedCount > 0) {
+    const updatedCoffee = await Coffee.findOne({ _id: new ObjectId(id) });
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          updatedCoffee,
+          "Coffee Details Updated Successfully!!!"
+        )
+      );
+  } else {
+    throw new ApiError(
+      500,
+      "Something went wrong while updating the coffee details"
+    );
+  }
+});
+
+const deleteACoffee = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const query = { _id: new ObjectId(id) };
+  const result = await Coffee.deleteOne(query);
+
+  if (result.deletedCount > 0) {
+    return res
+      .status(200)
+      .json(new ApiResponse(200, {}, "Successfully Deleted The Coffee!!!"));
+  } else {
+    throw new ApiError(
+      500,
+      "Something went wrong while deleting the coffee!!!"
+    );
+  }
+});
+
+export const CoffeeController = {
+  addCoffee,
+  getAllCoffee,
+  getACoffee,
+  updateCoffeeDetails,
+  deleteACoffee,
+};

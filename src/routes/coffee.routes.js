@@ -10,5 +10,7 @@ router
 
 router.route("/all-coffee").get(CoffeeController.getAllCoffee);
 router.route("/details/:id").get(CoffeeController.getACoffee);
+router.route("/update-details/:id").patch(CoffeeController.updateCoffeeDetails);
+router.route("/delete/:id").delete(CoffeeController.deleteACoffee);
 
 export default router;
