@@ -1,3 +1,4 @@
+import { ObjectId } from "mongodb";
 import { client } from "../db/index.js";
 import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
@@ -9,7 +10,7 @@ const Coffee = database.collection("coffee");
 
 const addCoffee = asyncHandler(async (req, res) => {
   try {
-    const { name, chef, supplier, taste, category, details } = req.body;
+    const { name, chef, supplier, taste, category, details, price } = req.body;
     if (
       !name ||
       !chef ||
@@ -17,6 +18,7 @@ const addCoffee = asyncHandler(async (req, res) => {
       !taste ||
       !category ||
       !details ||
+      !price ||
       !req.file
     ) {
       throw new ApiError(404, "All fields are required");
@@ -34,6 +36,7 @@ const addCoffee = asyncHandler(async (req, res) => {
       taste,
       category,
       details,
+      price: parseInt(price),
       photo: coffeeImage?.url,
     };
 
@@ -64,4 +67,23 @@ const addCoffee = asyncHandler(async (req, res) => {
   }
 });
 
-export const CoffeeController = { addCoffee };
+const getAllCoffee = asyncHandler(async (req, res) => {
+  const cursor = Coffee.find();
+  const coffees = await cursor.toArray();
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, coffees, "Successfully Fatched Coffee!!!"));
+});
+
+const getACoffee = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  const coffee = await Coffee.findOne({ _id: new ObjectId(id) });
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, coffee, "Coffee Fetched Successfully!!!"));
+});
+
+export const CoffeeController = { addCoffee, getAllCoffee, getACoffee };
